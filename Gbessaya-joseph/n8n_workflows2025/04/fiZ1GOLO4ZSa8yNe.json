@@ -1,0 +1,487 @@
+{
+  "active": false,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "QUERY_PARAMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QUERY_PARAMS": {
+      "main": [
+        [
+          {
+            "node": "CONFIG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONFIG": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Is error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is error?": {
+      "main": [
+        [
+          {
+            "node": "Stringify error message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exctract HTML Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exctract HTML Body": {
+      "main": [
+        [
+          {
+            "node": "Remove extra tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove extra tags": {
+      "main": [
+        [
+          {
+            "node": "Simplify?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify?": {
+      "main": [
+        [
+          {
+            "node": "Simplify output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify output": {
+      "main": [
+        [
+          {
+            "node": "Convert to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Markdown": {
+      "main": [
+        [
+          {
+            "node": "Send Page Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-04-30T18:27:29.492Z",
+  "id": "fiZ1GOLO4ZSa8yNe",
+  "meta": null,
+  "name": "http_request_tool",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Convert the query string into JSON, apply the limit for a page length",
+        "height": 236,
+        "width": 616
+      },
+      "id": "84760834-2909-4da8-9e74-872d080f9fb5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Send an error message:\n1. If query param was incorrect, return the instruction. AI Agent should pick up on this and adapt the query on the next iteration.\n2. If the query is OK and an error was during the HTTP Request, then send back the original error message.",
+        "height": 285.7,
+        "width": 491
+      },
+      "id": "03833f6c-29c9-4b28-9393-5cb7209c62d6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Post-processing of the HTML page:\n1. Keep only <BODY> content\n2. Remove inline <SCRIPT> tag entirely, as well as: NOSCRIPT, IFRAME, OBJECT, EMBED, VIDEO, AUDIO, SVG, and HTML comments.\n3. In case query parameter method=simplified, replace all page URLs (a href) and IMG (src) with NOURL / NOIMG - this may save up to 20% of the page length\n4. Convert the remaining HTML to Markdown. This step further reduces the length of the page: long HTML tags and styles are eliminated, but the markdown syntax keeps some page structure. This gives much better results compared to just a blank text.\n5. Finally, check the page length. If it's too long, send an \"ERROR: PAGE CONTENT TOO LONG\" instead of the actual page. Of course, you could split the page content in chunks, but sometimes long pages just don't have a needed content, so it makes little sense to burn tokens on them.",
+        "height": 493,
+        "width": 1200
+      },
+      "id": "f6a9445d-4dd8-458c-876e-4219402ba986",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        420
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "My Workflow"
+            }
+          ]
+        }
+      },
+      "id": "66294cda-076f-4bc7-bc51-4e03999b38f7",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -980,
+        360
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3a339da-66dc-45f1-852a-cdfe0daa4552",
+              "name": "query",
+              "type": "object",
+              "value": "={{ $json.query.substring($json.query.indexOf('?') + 1).split('&').reduce((result, item) => (result[item.split('=')[0]] = decodeURIComponent(item.split('=')[1]), result), {}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "749000d4-a5b4-4e31-b216-5d9876de37f0",
+      "name": "QUERY_PARAMS",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -800,
+        360
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ce4bb35a-c5ac-430e-b11a-6bf04de2dd90",
+              "name": "query.maxlimit",
+              "type": "number",
+              "value": "={{ $json?.query?.maxlimit == null ? 70000 : Number($json?.query?.maxlimit) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dbdca689-625f-455b-bd62-9a965a8e1157",
+      "name": "CONFIG",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -620,
+        360
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "=={{ encodeURI($json.query.url) }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "b13c5587-897d-416b-9419-23ebb83f2f9a",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -380,
+        360
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "33937446-5010-47d2-b98f-2f0ceae3fbf5",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.hasOwnProperty('error') }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7d1d7859-0221-44ab-b9fb-af3ca944b6f4",
+      "name": "Is error?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -200,
+        360
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "510f74a1-17da-4a2a-b207-9eda19f97ee0",
+              "name": "page_content",
+              "type": "string",
+              "value": "={{ $('QUERY_PARAMS').first()?.json?.query?.url == null ? \"INVALID action_input. This should be an HTTP query string like this: \\\"?url=VALIDURL&method=SELECTEDMETHOD\\\". Only a simple string value is accepted. JSON object as an action_input is NOT supported!\" : JSON.stringify($json.error) }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "HTML",
+        "options": {}
+      },
+      "id": "b4eec73f-a744-4ab5-b411-93f30e0909f5",
+      "name": "Stringify error message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        60,
+        140
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3639b76e-3ae9-4461-8d4c-552bf1c8a6bf",
+              "name": "HTML",
+              "type": "string",
+              "value": "={{ $json?.data.match(/<body[^>]*>([\\s\\S]*?)<\\/body>/i)[1] }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "HTML",
+        "options": {}
+      },
+      "id": "a1ae73df-9deb-4653-ad07-60b8ae7a3dbd",
+      "name": "Exctract HTML Body",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        80,
+        640
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89b927c9-ddc1-4735-a0ea-c1e50a057f76",
+              "name": "HTML",
+              "type": "string",
+              "value": "={{ ($json.HTML || \"HTML BODY CONTENT FOR THIS SEARCH RESULT IS NOT AVAILABLE\").replace(/<script[^>]*>([\\s\\S]*?)<\\/script>|<style[^>]*>([\\s\\S]*?)<\\/style>|<noscript[^>]*>([\\s\\S]*?)<\\/noscript>|<!--[\\s\\S]*?-->|<iframe[^>]*>([\\s\\S]*?)<\\/iframe>|<object[^>]*>([\\s\\S]*?)<\\/object>|<embed[^>]*>([\\s\\S]*?)<\\/embed>|<video[^>]*>([\\s\\S]*?)<\\/video>|<audio[^>]*>([\\s\\S]*?)<\\/audio>|<svg[^>]*>([\\s\\S]*?)<\\/svg>/ig, '')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a90f656c-5f9f-4b9c-835f-5f5122d7affe",
+      "name": "Remove extra tags",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        640
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9c3a2a78-b236-4f47-89b0-34967965e01c",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('CONFIG').first()?.json?.query?.method }}",
+              "rightValue": "simplify"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "394f55cc-63f8-4430-8fe8-ccd19f3f8a9f",
+      "name": "Simplify?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        440,
+        640
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "92b08041-799b-4335-aefe-3781a42f8ec0",
+              "name": "HTML",
+              "type": "string",
+              "value": "={{ $json.HTML.replace(/href\\s*=\\s*\"(.+?)\"/gi, 'href=\"NOURL\"').replace(/src\\s*=\\s*\"(.+?)\"/gi, 'src=\"NOIMG\"')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "02f728de-27cc-4012-888d-e7c507c3b719",
+      "name": "Simplify output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        620,
+        540
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.HTML }}",
+        "destinationKey": "page_content",
+        "options": {}
+      },
+      "id": "035f9a5d-cc82-4721-9ef4-3cfb373eb94d",
+      "name": "Convert to Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        800,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "48a78432-2103-44ed-b4d6-7e429ae9e742",
+              "name": "page_content",
+              "type": "string",
+              "value": "={{ $json.page_content.length < $('CONFIG').first()?.json?.query?.maxlimit ? $json.page_content : \"ERROR: PAGE CONTENT TOO LONG\" }}"
+            },
+            {
+              "id": "ec0130f1-16a2-474f-a7cb-96d0e6fc644f",
+              "name": "page_length",
+              "type": "string",
+              "value": "={{ $json.page_content.length }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c284931-f775-4a33-9bb6-d9f4b66a9a53",
+      "name": "Send Page Content",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1000,
+        640
+      ],
+      "typeVersion": 3.4
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-04-30T18:27:29.492Z",
+  "versionId": "d7c2945f-c129-495e-8b27-3031a4d01f89"
+}
