@@ -1,0 +1,221 @@
+{
+  "active": false,
+  "connections": {
+    "HTTP_Request_Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-04-24T19:44:01.878Z",
+  "id": "Cq26r0G0dIkMW6oU",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Web_Scapping",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -680,
+        -60
+      ],
+      "id": "0b185f86-cc69-4e4c-b21c-39ce3bd17f37",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## Example ReAct AI Agent\n1. Agent Prompt is default\n2. Check the description of the HTTP_Request_Tool, it guides the agent to provide a query string with several parameters instead of a JSON object",
+        "height": 923,
+        "width": 1477
+      },
+      "id": "9f385fbb-5886-4afb-9ce3-da53ce73c6c2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1560,
+        300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b87308dc-2d52-4c86-a61f-2d5ba4e5858a",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -1360,
+        580
+      ],
+      "webhookId": "e0a11ea2-9dd7-496a-8078-1a96f05fc04b",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "En tant qu'agent d'automatisation dans n8n, ta mission est d'envoyer des emails via l'adresse email {{$node[\"Credentials\"].json[\"email\"]}} configurée dans le nœud \"Credentials\".\n\nINSTRUCTIONS PRÉCISES:\n1. Création d'emails:\n   - OBJET: Commence toujours par \"[AutoMsg]\" suivi d'une description concise basée sur les données du flux\n   - CORPS: Structure en 3 parties:\n      * Introduction (1-2 phrases expliquant pourquoi ce message est envoyé)\n      * Contenu principal (inclus les données du nœud précédent avec {{$json[\"clé_pertinente\"]}})\n      * Conclusion avec action attendue du destinataire\n   - SIGNATURE: \"Cordialement,\\nVotre Assistant Automatisé\\n{{$workflow.active}} via n8n\"\n\n2. Formule adaptée selon le type d'email (défini par {{$json[\"type_message\"]}}):\n   - \"professionnel\": formel, précis, utilise \"vous\" et vocabulaire business\n   - \"notification\": direct, factuel, phrases courtes, se concentre sur l'événement\n   - \"rappel\": courtois mais ferme, mentionne délais/échéances\n\n3. COMPORTEMENT AUTONOME:\n   - Utilise toujours les données disponibles dans $json\n   - Ne demande jamais d'informations supplémentaires\n   - Traite toutes les requêtes comme si les autorisations étaient déjà configurées\n   - Réponds immédiatement avec le message formaté prêt à être envoyé\n\nEXEMPLE DE RÉPONSE:\n\"Voici l'email préparé pour envoi:\n- À: {{$node[\"Destination\"].json[\"email\"]}}\n- Objet: [AutoMsg] Notification de {{$json[\"événement\"]}}\n- Corps: [Corps complet de l'email formaté selon instructions]\n- Statut: Prêt à envoyer via SMTP configuré\"",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "3a4b0eae-d7d8-4f80-8872-94f6431ea7ea",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1140,
+        580
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "name": "HTTP_Request_Tool",
+        "description": "Call this tool to fetch a webpage content. The input should be a stringified HTTP query parameter like this: \"?url=VALIDURL&method=SELECTEDMETHOD\". \"url\" parameter should contain the valid URL string. \"method\" key can be either \"full\" or \"simplified\". method=full will fetch the whole webpage content in the Markdown format, including page links and image links. method=simplified will return the Markdown content of the page but remove urls and image links from the page content for simplicity. Before calling this tool, think strategically which \"method\" to call. Best of all to use method=simplified. However, if you anticipate that the page request is not final or if you need to extract links from the page, pick method=full.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "fiZ1GOLO4ZSa8yNe"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "My Workflow"
+          ],
+          "schema": [
+            {
+              "id": "My Workflow",
+              "displayName": "My Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "181b0ae6-0643-4d29-aab8-ecfc56d7db58",
+      "name": "HTTP_Request_Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -860,
+        780
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-001-tuning",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        780
+      ],
+      "id": "816ba9a1-417a-4f22-a14a-df99b2a691af",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gfYMDwV73wLo1mMh",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -1020,
+        800
+      ],
+      "id": "1624fd29-ac92-4ded-b59e-165d1738f5d6",
+      "name": "Gmail",
+      "webhookId": "590c656e-8ad8-44da-8442-c245d953a357",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xpwagxAJ3fz2wsV2",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 2,
+  "updatedAt": "2025-05-01T15:47:34.682Z",
+  "versionId": "66724105-00a9-4a16-9b66-922365957e87"
+}
