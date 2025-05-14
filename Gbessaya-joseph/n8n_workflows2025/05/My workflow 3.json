@@ -1,0 +1,52 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-05-14T12:48:50.022Z",
+  "id": "gTzCke92GPfGEOUm",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -180
+      ],
+      "id": "27043545-20cc-4692-bfbd-c55fe1bb7e54",
+      "name": "When chat message received",
+      "webhookId": "f089177e-c060-4e0f-abb4-83334b90cd5a"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -80
+      ],
+      "id": "e49e0af7-c3b5-48a5-9a8b-dae92fe11766",
+      "name": "DeepSeek Chat Model"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-05-14T12:48:50.022Z",
+  "versionId": "0ef3d1e2-7578-4313-b8f2-712b4556fdca"
+}
