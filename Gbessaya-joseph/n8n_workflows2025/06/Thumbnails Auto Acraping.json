@@ -1,0 +1,524 @@
+{
+  "active": false,
+  "connections": {
+    "Déclencheur Quotidien": {
+      "main": [
+        []
+      ]
+    },
+    "Initialisation": {
+      "main": [
+        [
+          {
+            "node": "Slack - Début",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Début": {
+      "main": [
+        [
+          {
+            "node": "YouTube API - Recherche",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube API - Recherche": {
+      "main": [
+        [
+          {
+            "node": "Traitement Données YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traitement Données YouTube": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Insert Miniatures",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Préparation Téléchargements",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparation Téléchargements": {
+      "main": [
+        [
+          {
+            "node": "Téléchargement Miniatures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Téléchargement Miniatures": {
+      "main": [
+        [
+          {
+            "node": "Upload Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Compilation Statistiques",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compilation Statistiques": {
+      "main": [
+        [
+          {
+            "node": "Slack - Succès",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Insert Vidéos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Initialisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-06-11T10:28:58.822Z",
+  "id": "6y9Ez5qnkCwZEQgi",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Thumbnails Auto Acraping",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c8f3557c-241a-4cf6-b9f9-841e4891e8b9",
+      "name": "Déclencheur Quotidien",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Configuration initiale du workflow\nconst config = {\n  targetVideosCount: 20,\n  youtubeSearchQuery: 'trending videos',\n  startTime: new Date().toISOString(),\n  workflowId: $execution.id\n};\n\n// Logging initial\nconsole.log('🚀 Démarrage du workflow YouTube Scraper');\nconsole.log('Configuration:', config);\n\nreturn {\n  json: {\n    ...config,\n    status: 'initialized',\n    message: '🚀 Workflow YouTube Scraper démarré'\n  }\n};"
+      },
+      "id": "20854b51-fd5f-4d85-9d27-7d0e08f4050b",
+      "name": "Initialisation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C090S20BQ3D",
+          "mode": "list",
+          "cachedResultName": "automation-logs"
+        },
+        "text": "🚀 **YouTube Scraper - Démarrage**\n\n📅 **Date:** {{$json.startTime}}\n🎯 **Objectif:** {{$json.targetVideosCount}} vidéos\n🔍 **Recherche:** {{$json.youtubeSearchQuery}}\n🆔 **Workflow ID:** {{$json.workflowId}}\n\n⏳ Début du scraping...",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "id": "315f1f23-7c1c-4bb4-8a92-19bdd0ccf2dd",
+      "name": "Slack - Début",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        100
+      ],
+      "webhookId": "84e1095c-8b84-4972-9c5a-e92318275195",
+      "credentials": {
+        "slackApi": {
+          "id": "H9PB0tg8YxXbkCsr",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "q",
+              "value": "={{$json.youtubeSearchQuery}}"
+            },
+            {
+              "name": "type",
+              "value": "video"
+            },
+            {
+              "name": "maxResults",
+              "value": "={{$json.targetVideosCount}}"
+            },
+            {
+              "name": "order",
+              "value": "relevance"
+            },
+            {
+              "name": "publishedAfter",
+              "value": "={{DateTime.now().minus({days: 7}).toISO()}}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "275f125b-3d7d-42fa-9412-7a66fdd8b23b",
+      "name": "YouTube API - Recherche",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -440,
+        100
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "oVRvtGpBmKQdIugr",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Traitement des données YouTube\nconst items = $input.all();\nconst videos = [];\nconst thumbnails = [];\nconst errors = [];\n\ntry {\n  for (const item of items) {\n    if (item.json.items && Array.isArray(item.json.items)) {\n      for (const video of item.json.items) {\n        try {\n          const videoData = {\n            youtube_id: video.id.videoId,\n            title: video.snippet.title,\n            description: video.snippet.description,\n            channel_name: video.snippet.channelTitle,\n            channel_id: video.snippet.channelId,\n            published_at: video.snippet.publishedAt,\n            scraped_at: new Date().toISOString(),\n            url: `https://www.youtube.com/watch?v=${video.id.videoId}`\n          };\n          \n          // Extraction des miniatures\n          const thumbnailSizes = ['default', 'medium', 'high', 'standard', 'maxres'];\n          \n          for (const size of thumbnailSizes) {\n            if (video.snippet.thumbnails[size]) {\n              const thumbnailData = {\n                video_youtube_id: video.id.videoId,\n                size: size,\n                url: video.snippet.thumbnails[size].url,\n                width: video.snippet.thumbnails[size].width || null,\n                height: video.snippet.thumbnails[size].height || null,\n                created_at: new Date().toISOString()\n              };\n              thumbnails.push(thumbnailData);\n            }\n          }\n          \n          videos.push(videoData);\n        } catch (videoError) {\n          errors.push({\n            type: 'video_processing',\n            videoId: video.id?.videoId || 'unknown',\n            error: videoError.message\n          });\n        }\n      }\n    }\n  }\n  \n  console.log(`✅ Traitement terminé: ${videos.length} vidéos, ${thumbnails.length} miniatures`);\n  \n  return {\n    json: {\n      videos,\n      thumbnails,\n      stats: {\n        videosCount: videos.length,\n        thumbnailsCount: thumbnails.length,\n        errorsCount: errors.length\n      },\n      errors,\n      processedAt: new Date().toISOString()\n    }\n  };\n  \n} catch (error) {\n  console.error('❌ Erreur lors du traitement:', error);\n  return {\n    json: {\n      videos: [],\n      thumbnails: [],\n      stats: { videosCount: 0, thumbnailsCount: 0, errorsCount: 1 },\n      errors: [{ type: 'processing_error', error: error.message }],\n      processedAt: new Date().toISOString()\n    }\n  };\n}"
+      },
+      "id": "09d1ec62-cc75-4c4a-85c9-9c6ae1ea93e2",
+      "name": "Traitement Données YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "videos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "youtube_id",
+              "fieldValue": "={{ $json.videos[0].youtube_id }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.videos[0].title }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ $json.videos[0].description }}"
+            },
+            {
+              "fieldId": "channel_name",
+              "fieldValue": "={{ $json.videos[0].channel_name }}"
+            },
+            {
+              "fieldId": "channel_id",
+              "fieldValue": "={{ $json.videos[0].channel_id }}"
+            },
+            {
+              "fieldId": "published_at",
+              "fieldValue": "={{ $json.videos[0].published_at }}"
+            },
+            {
+              "fieldId": "scraped_at",
+              "fieldValue": "={{ $json.videos[0].scraped_at }}"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $json.videos[0].url }}"
+            }
+          ]
+        }
+      },
+      "id": "1b373e6e-865e-45a8-94d7-733bf59fbf51",
+      "name": "Supabase - Insert Vidéos",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MJc53IGMUwGHxAqB",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "thumbnails",
+        "dataToSend": "={{ $json.thumbnails[0] }}"
+      },
+      "id": "f5423eb6-5314-44b0-8df4-4179bed708d8",
+      "name": "Supabase - Insert Miniatures",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        220,
+        200
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MJc53IGMUwGHxAqB",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Préparation pour téléchargement des miniatures\nconst data = $input.all()[0].json;\nconst thumbnailsToDownload = [];\n\n// Sélection des miniatures haute qualité pour téléchargement\nfor (const thumbnail of data.thumbnails) {\n  if (thumbnail.size === 'high' || thumbnail.size === 'maxres') {\n    thumbnailsToDownload.push({\n      url: thumbnail.url,\n      filename: `${thumbnail.video_youtube_id}_${thumbnail.size}.jpg`,\n      videoId: thumbnail.video_youtube_id,\n      size: thumbnail.size\n    });\n  }\n}\n\nconsole.log(`📥 Préparation téléchargement: ${thumbnailsToDownload.length} miniatures`);\n\nreturn thumbnailsToDownload.map(thumb => ({ json: thumb }));"
+      },
+      "id": "7c3078f4-03cc-449c-97cf-4ee6c3c120bc",
+      "name": "Préparation Téléchargements",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "b0aefd16-fc1d-403d-8009-af35cffbca4e",
+      "name": "Téléchargement Miniatures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        660,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "1054c27b-3fa6-4c14-802f-1de9e307a7b9",
+      "name": "Upload Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        880,
+        100
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "cnSjDIlUMqhoLDBs",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compilation des statistiques finales\nconst allItems = $input.all();\nconst uploadedFiles = allItems.filter(item => item.json.id); // Fichiers uploadés avec succès\nconst errors = allItems.filter(item => item.json.error);\n\nconst stats = {\n  totalProcessed: allItems.length,\n  successfulUploads: uploadedFiles.length,\n  failedUploads: errors.length,\n  completedAt: new Date().toISOString(),\n  duration: Date.now() - new Date($('Initialisation').first().json.startTime).getTime(),\n  uploadedFiles: uploadedFiles.map(f => ({\n    name: f.json.name,\n    size: f.json.size,\n    driveId: f.json.id\n  }))\n};\n\nconsole.log('📊 Statistiques finales:', stats);\n\nreturn { json: stats };"
+      },
+      "id": "6ea60ad5-34ec-4a45-8406-3f9dfe64a7be",
+      "name": "Compilation Statistiques",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C090ZK1PHAQ",
+          "mode": "list",
+          "cachedResultName": "automation-alerts"
+        },
+        "text": "✅ **YouTube Scraper - Terminé avec succès**\n\n📊 **Statistiques:**\n• 🎥 Vidéos traitées: {{$json.totalProcessed}}\n• ✅ Miniatures uploadées: {{$json.successfulUploads}}\n• ❌ Échecs: {{$json.failedUploads}}\n• ⏱️ Durée: {{Math.round($json.duration/1000)}}s\n• 📅 Terminé: {{$json.completedAt}}\n\n🔗 **Fichiers uploadés:**\n{{$json.uploadedFiles.map(f => `• ${f.name} (${Math.round(f.size/1024)}KB)`).join('\\n')}}",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "id": "33361481-2256-4e90-8a05-7ae65c339455",
+      "name": "Slack - Succès",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "webhookId": "5213ef97-ea44-42d5-bf3d-1c703d7b9ac0",
+      "credentials": {
+        "slackApi": {
+          "id": "H9PB0tg8YxXbkCsr",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C090ZK1PHAQ",
+          "mode": "list",
+          "cachedResultName": "automation-alerts"
+        },
+        "text": "🚨 **YouTube Scraper - Erreur Critique**\n\n❌ **Erreur:** {{$json.error.message}}\n⏰ **Heure:** {{DateTime.now().toISO()}}\n🔍 **Nœud:** {{$json.error.node}}\n🆔 **Execution ID:** {{$runIndex}}\n\n📝 **Détails:**\n```\n{{JSON.stringify($json.error, null, 2)}}\n```\n\n🔧 **Action requise:** Vérifier les logs et corriger le problème",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "id": "0be2f583-ff1e-4f9f-bc59-afac9a77bb37",
+      "name": "Slack - Erreur",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        200
+      ],
+      "webhookId": "834f00b8-517b-45cf-b43d-cd5c247ad6b7",
+      "credentials": {
+        "slackApi": {
+          "id": "H9PB0tg8YxXbkCsr",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gestionnaire d'erreurs global\nconst error = $input.all()[0];\n\nconst errorReport = {\n  timestamp: new Date().toISOString(),\n  executionId: $execution.id,\n  error: {\n    message: error.json?.message || 'Unknown error',\n    node: error.node || 'Unknown node',\n    stack: error.json?.stack || 'No stack trace',\n    data: error.json || {}\n  },\n  context: {\n    workflowName: 'YouTube Thumbnails Scraper',\n    environment: 'production'\n  }\n};\n\nconsole.error('🚨 Erreur capturée:', errorReport);\n\nreturn { json: errorReport };"
+      },
+      "id": "916beea1-506f-4b61-a5f1-58fc85a28040",
+      "name": "Gestionnaire d'Erreurs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -120
+      ],
+      "id": "0ed2d2b4-5227-418a-9b47-826d794b29a1",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        -80
+      ],
+      "id": "5bb88ba8-448b-48df-bc46-6209b436c9eb",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-06-11T17:18:56.549Z",
+  "versionId": "cae46d31-6880-48a3-9a4c-f41477388aaf"
+}
