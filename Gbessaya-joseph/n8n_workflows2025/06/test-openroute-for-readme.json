@@ -1,0 +1,92 @@
+{
+  "active": false,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-06-20T12:10:20.486Z",
+  "id": "wEe2XDln2kCB2A40",
+  "isArchived": false,
+  "meta": null,
+  "name": "test-openroute-for-readme",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        60
+      ],
+      "id": "78c2782a-6b42-46f0-885b-2a7653654600",
+      "name": "When chat message received",
+      "webhookId": "8ad854fe-209f-4ba2-970a-86fab7231841"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        600,
+        460
+      ],
+      "id": "d07efae5-80fa-4a09-b531-6b8d6fd03e46",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "D2mBCHNII5bPx4Ya",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        580,
+        200
+      ],
+      "id": "cd0bc264-51cc-4e38-9f49-9f8a22654a89",
+      "name": "AI Agent1"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-06-20T12:10:20.486Z",
+  "versionId": "8036cf52-86d2-4d29-9aa0-051df3c3dc53"
+}
