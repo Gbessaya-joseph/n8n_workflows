@@ -1,0 +1,379 @@
+{
+  "active": false,
+  "connections": {
+    "Set URL": {
+      "main": [
+        [
+          {
+            "node": "Fetch Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists": {
+      "main": [
+        [
+          {
+            "node": "Extract Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Date": {
+      "main": [
+        [
+          {
+            "node": "Create RSS Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Link": {
+      "main": [
+        [
+          {
+            "node": "Format Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Posts": {
+      "main": [
+        [
+          {
+            "node": "Item Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Website": {
+      "main": [
+        [
+          {
+            "node": "Extract Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [
+          {
+            "node": "Complete Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create RSS Items": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Set URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-22T19:00:32.732Z",
+  "id": "VO68SwnGJFcRJR31",
+  "isArchived": false,
+  "meta": null,
+  "name": "My workflow 6",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "bd293d12-0538-4b48-a63d-b560403f3f9d"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "post",
+        "options": {}
+      },
+      "name": "Item Lists",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        880,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "b909319e-aa8b-4544-96c1-5a9f87aad181"
+    },
+    {
+      "parameters": {
+        "extractionValues": {
+          "values": [
+            {
+              "key": "post",
+              "cssSelector": ".blog-listing__post-content",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Extract Posts",
+      "type": "n8n-nodes-base.htmlExtract",
+      "position": [
+        672,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "682fe89e-4ea0-407e-85c0-bea116defa00"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"base_domain\"]}}/blog/category/release",
+        "responseFormat": "string",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "name": "Fetch Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "4dc7336e-8dfd-4d94-a49f-107f45431059"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "base_domain",
+              "value": "https://baserow.io"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "23808d93-0cc8-4b9a-b27d-deff423773f5"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "link",
+              "value": "={{$item(0).$node[\"Set URL\"].json[\"base_domain\"]}}{{$json[\"link\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Complete Link",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        0,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "5bc5a23c-fde6-4252-bf11-c73b60fce6ce"
+    },
+    {
+      "parameters": {
+        "value": "={{$json[\"date\"]}}",
+        "dataPropertyName": "date",
+        "toFormat": "YYYY-MM-DD",
+        "options": {}
+      },
+      "name": "Format Date",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        224,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "d558b7fe-ee8e-46d4-861d-38fc4feb7e13"
+    },
+    {
+      "parameters": {
+        "functionCode": "return {\n  rss_item: \n`<item>\n  <title>${item.title}</title>\n  <link>${item.link}</link>\n  <description>${item.description}</description>\n  <pubDate>${item.date}</pubDate>\n</item>`\n}"
+      },
+      "name": "Create RSS Items",
+      "type": "n8n-nodes-base.functionItem",
+      "position": [
+        448,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "811a1c79-8fcd-46c4-bda6-40a68a60dc07"
+    },
+    {
+      "parameters": {
+        "path": "baserow-releases",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "27c1e4db-568f-4bf9-9474-0898ce1173f7",
+      "typeVersion": 1,
+      "id": "62c6c750-2f08-4d33-9a40-94e41b898626"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{$json[\"feed\"]}}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "content-type",
+                "value": "application/xml"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        880,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "15e2c3c5-0260-4ce3-97a1-7bca7aa81c5d"
+    },
+    {
+      "parameters": {
+        "functionCode": "let feed =\n`<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<rss version=\"2.0\">\n\n<channel>\n  <title>Baserow Releases</title>\n  <link>https://baserow.io/blog/category/release</link>\n  <description>Stay up to date with the latest changes and updates of Baserow</description>\n  ${items.map(e => e.json.rss_item).join('\\n')}\n</channel>\n\n</rss>`;\n\nreturn [{\n  json: {\n    feed: feed\n  }\n}];"
+      },
+      "name": "Prepare Response",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        672,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "3462c782-6a2a-4ee7-bb90-ed0d2a711bed"
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "post",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "date",
+              "cssSelector": ".blog-listing__post-info > strong"
+            },
+            {
+              "key": "title",
+              "cssSelector": ".blog-listing__post-title"
+            },
+            {
+              "key": "link",
+              "cssSelector": ".blog-listing__post-title > a",
+              "returnValue": "attribute",
+              "attribute": "href"
+            },
+            {
+              "key": "description",
+              "cssSelector": ".blog-listing__post-description"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.htmlExtract",
+      "position": [
+        1104,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "4c2b9cde-226b-41bd-9b61-ce53debb4be8"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-09-22T19:00:32.732Z",
+      "updatedAt": "2025-09-22T19:00:32.732Z",
+      "role": "workflow:owner",
+      "workflowId": "VO68SwnGJFcRJR31",
+      "projectId": "gGkJ26SwMiOwivnN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-22T19:00:32.732Z",
+  "versionId": "b5f07e2f-e45e-4bc1-b0e3-2392c99af1b6"
+}
