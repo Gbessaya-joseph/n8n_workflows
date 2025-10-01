@@ -1,0 +1,112 @@
+{
+  "active": true,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-14T12:48:50.022Z",
+  "id": "gTzCke92GPfGEOUm",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "webhook-test-with-gmail",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e3f360ca-61fe-4be4-b8bf-0cc5896e8fe2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "77512153-b61d-4f92-befc-a41f3c90f365",
+      "name": "Webhook",
+      "webhookId": "e3f360ca-61fe-4be4-b8bf-0cc5896e8fe2"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.email }}",
+        "subject": "Verify your Email Adress",
+        "message": "=<p>Bonjour,</p> <p>Merci de vous être inscrit sur notre plateforme. Pour vérifier votre adresse e-mail, veuillez utiliser le code suivant :</p> <h3>{{ $json.body.verificationCode }}</h3> <p>Ce code est valide pendant 15 minutes.</p> <p>Si vous n'avez pas demandé cette vérification, veuillez ignorer cet e-mail.</p> <p>Cordialement,</p> <p>L'équipe de votre application</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bce4d0eb-87b2-4392-b89c-c7d89bc95320",
+      "name": "Gmail",
+      "webhookId": "46d1288b-f8d0-4243-ad1e-6550690bb981",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xpwagxAJ3fz2wsV2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Email de vérification envoyé.\",\n  \"emailSentTo\": \"{{ $json.email }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "31224acf-1725-4740-9aef-cb082b614dea",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-05-14T12:48:50.022Z",
+      "updatedAt": "2025-05-14T12:48:50.022Z",
+      "role": "workflow:owner",
+      "workflowId": "gTzCke92GPfGEOUm",
+      "projectId": "gGkJ26SwMiOwivnN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-09-30T17:11:29.351Z",
+  "versionId": "031955a7-ea0f-4fcd-b432-85bbeb772f90"
+}
