@@ -1,0 +1,455 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Webhook - Réception demande": {
+      "main": [
+        [
+          {
+            "node": "Routeur - Type de contenu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routeur - Type de contenu": {
+      "main": [
+        [
+          {
+            "node": "Appel Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image - Non disponible",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Vidéo - Non disponible",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Type non reconnu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appel Claude API": {
+      "main": [
+        [
+          {
+            "node": "Formatage variantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatage variantes": {
+      "main": [
+        [
+          {
+            "node": "Modération (stub)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modération (stub)": {
+      "main": [
+        [
+          {
+            "node": "Journalisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image - Non disponible": {
+      "main": [
+        [
+          {
+            "node": "Journalisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vidéo - Non disponible": {
+      "main": [
+        [
+          {
+            "node": "Journalisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Type non reconnu": {
+      "main": [
+        [
+          {
+            "node": "Journalisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Journalisation": {
+      "main": [
+        [
+          {
+            "node": "Callback vers plateforme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-10-27T12:12:05.362Z",
+  "id": "2CLXsfVbQPIOxcn8",
+  "isArchived": false,
+  "meta": null,
+  "name": "PUBLICITE - Studio créatif IA",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "studio-ia/generation",
+        "options": {}
+      },
+      "id": "b11edbb5-45b4-45cb-a317-546dab5389c1",
+      "name": "Webhook - Réception demande",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        272
+      ],
+      "webhookId": "ba969dc8-2c6a-4baf-819d-5b238dad6bb4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.contentType }}",
+                    "rightValue": "texte",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.contentType }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.contentType }}",
+                    "rightValue": "video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "7610e4d2-65cd-4b9e-aa12-1d1cd2b8d77d",
+      "name": "Routeur - Type de contenu",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -352,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 800, \"messages\": [ { \"role\": \"user\", \"content\": \"Génère \" + ($json.body.variantCount || 3) + \" variantes publicitaires (slogan + accroche courte) en \" + ($json.body.language || \"français\") + \" pour l'annonce suivante : \" + $json.body.brief + \". Réponds uniquement en JSON sous la forme {\\\"variants\\\": [\\\"...\\\"]}.\" } ] } }}",
+        "options": {}
+      },
+      "id": "2ba05f8e-b2c7-4d85-8a87-4a192df4427e",
+      "name": "Appel Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nlet variants = [];\ntry {\n  const text = raw.content?.[0]?.text || '{}';\n  const parsed = JSON.parse(text);\n  variants = parsed.variants || [];\n} catch (e) {\n  variants = [];\n}\nreturn [{ json: { jobId: $('Webhook - Réception demande').item.json.body.jobId, contentType: 'texte', variants, rawResponse: raw } }];"
+      },
+      "id": "be710af7-0fea-43ac-b261-c6177e1dfc31",
+      "name": "Formatage variantes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stub de modération — à remplacer par une vraie intégration (liste de mots interdits, RGPD/CCPA, cohérence de marque).\nconst bannedWords = ['motinterdit1', 'motinterdit2'];\nconst input = $input.first().json;\nconst rejected = (input.variants || []).some(v => bannedWords.some(w => v.toLowerCase().includes(w)));\nreturn [{\n  json: {\n    ...input,\n    moderation: rejected ? 'rejected' : 'approved',\n    status: rejected ? 'rejected' : 'completed'\n  }\n}];"
+      },
+      "id": "7b5b979a-8d66-4983-9fb4-6eff34ab3331",
+      "name": "Modération (stub)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "jobId",
+              "value": "={{ $('Webhook - Réception demande').item.json.body.jobId }}",
+              "type": "string"
+            },
+            {
+              "name": "contentType",
+              "value": "image",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "value": "not_implemented",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "value": "Génération d'images non activée en V1 — branche préparée pour une extension future.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "761c9f1e-9ca2-49c4-a8e2-8107a5305590",
+      "name": "Image - Non disponible",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "jobId",
+              "value": "={{ $('Webhook - Réception demande').item.json.body.jobId }}",
+              "type": "string"
+            },
+            {
+              "name": "contentType",
+              "value": "video",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "value": "not_implemented",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "value": "Génération vidéo non activée en V1 — branche préparée pour une extension future.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9dc6a4c-b387-4d13-8819-dbca4f6e2328",
+      "name": "Vidéo - Non disponible",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "jobId",
+              "value": "={{ $('Webhook - Réception demande').item.json.body.jobId }}",
+              "type": "string"
+            },
+            {
+              "name": "contentType",
+              "value": "={{ $('Routeur - Type de contenu').item.json.body.contentType }}",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "value": "not_implemented",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "value": "Type de contenu non reconnu.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ec6eb6c8-baa1-4fc5-82bb-db9f09a08352",
+      "name": "Type non reconnu",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const entry = {\n  timestamp: new Date().toISOString(),\n  jobId: $json.jobId,\n  contentType: $json.contentType,\n  status: $json.status\n};\nconsole.log('Studio IA - exécution:', JSON.stringify(entry));\nreturn [{ json: { ...$json, logEntry: entry } }];"
+      },
+      "id": "7bfd7b10-61c9-49c6-9137-60e7c72999c5",
+      "name": "Journalisation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.PLATFORM_CALLBACK_URL || 'https://VOTRE-API-PRINCIPALE/webhooks/studio-ia/callback' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "610bc892-29a1-415a-86b2-bf8c3c7a6b4f",
+      "name": "Callback vers plateforme",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        272
+      ]
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n_workflows",
+  "repo_owner": "Gbessaya-joseph",
+  "repo_path": "Gbessaya-joseph/n8n_workflows",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-10-27T12:12:05.362Z",
+      "createdAt": "2026-10-27T12:12:05.362Z",
+      "role": "workflow:owner",
+      "workflowId": "2CLXsfVbQPIOxcn8",
+      "projectId": "gGkJ26SwMiOwivnN"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-10-27T12:12:05.362Z",
+  "versionId": "6f167a65-241e-4003-bd8e-63180fa083bc"
+}
